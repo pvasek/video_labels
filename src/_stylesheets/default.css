@@ -1,0 +1,27 @@
+.toolbar {
+    padding: 10px 5px;    
+    background-color: #eee;
+}
+
+.toolbar * { 
+    margin-right: 5px;
+}
+
+.toolbar .seperator {
+    display: inline-block;
+    width: 30px;
+}
+
+.toolbar select {
+    min-width: 200px;
+}
+
+.label-maker {
+    display: flex;
+    flex-direction: column;
+}
+
+.image {
+    padding: 20px;
+    display: flex;    
+}
