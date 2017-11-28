@@ -7,6 +7,7 @@ import { action } from "mobx";
 export interface CanvasModelOwner {
     imageUrl: string;
     width: number;
+    selectPoint(x: number, y: number): void;
 }
 
 export class CanvasModel {
@@ -34,6 +35,7 @@ export class CanvasModel {
         y = y - 2;
         this.renderImage();
         this.renderPointer(x, y);
+        this.owner.selectPoint(x, y);
     }
 
     private renderPointer(x: number, y: number) {

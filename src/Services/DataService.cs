@@ -43,9 +43,17 @@ namespace VideoLabels.Services
             };                  
         }
 
+        internal void SetImageGroupLabels(ImageGroup data, string imageId, DataLabels labels)
+        {
+            data.Labels[imageId] = labels;
+            var path = Path.Combine(_rootDataPath, data.Id, "labels.json");
+            var json = JsonConvert.SerializeObject(data.Labels);
+            File.WriteAllText(path, json);
+        }
+
         private static Dictionary<string, DataLabels> CreateDataLabels(string groupPath)
         {
-            var file = Path.Combine(groupPath, "labels.csv");
+            var file = Path.Combine(groupPath, "labels.json");
             if (File.Exists(file)) 
             {
                 var content = File.ReadAllText(file);

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using VideoLabels.Entities;
 using VideoLabels.Services;
 
 namespace VideoLabels.Controllers
@@ -35,6 +36,16 @@ namespace VideoLabels.Controllers
         {
             var data = await _dataService.GetGroupAsync(id);
             return Json(data);
+        }
+
+        [HttpPost]
+        [Route("{id}")]
+        public async Task<IActionResult> Save(string id, string imageId, 
+            [FromBody] DataLabels labels)
+        {
+            var data = await _dataService.GetGroupAsync(id);
+            _dataService.SetImageGroupLabels(data, imageId, labels);
+            return Ok();
         }
     }
 }

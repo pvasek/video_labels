@@ -22,8 +22,34 @@ export class AppModel {
         this.canvasModel = new CanvasModel(this);
     }
 
-    canvasModel: CanvasModel;
-    
+    canvasModel: CanvasModel;    
+
+    @observable selectedImageId: string = null;
+    @observable selectedGroup: ImageGroup = null;
+    @observable groups: ImageGroup[] = [];
+    @observable width: number = 600;
+
+    @computed get currentIndex() {
+        if (this.selectedGroup) {
+            return this.selectedGroup.files.indexOf(this.selectedImageId);
+        }        
+        return 0;
+    }
+
+    @computed get length() {
+        if (this.selectedGroup) {
+            return this.selectedGroup.files.length;
+        }
+        return 0;
+    }    
+
+    @computed get imageUrl() {
+        if (this.selectedGroup) {
+            return `/data/${this.selectedGroup.id}/${this.selectedImageId}`;
+        }
+        return "";
+    }
+
     @action async load() {
         const response = await this.httpClient.fetch("/api/v1/imagegroup");
         const groups = await response.json();
@@ -75,29 +101,21 @@ export class AppModel {
         this.canvasModel.draw();
     }
 
-    @observable selectedImageId: string = null;
-    @observable selectedGroup: ImageGroup = null;
-    @observable groups: ImageGroup[] = [];
-    @observable width: number = 600;
-
-    @computed get currentIndex() {
-        if (this.selectedGroup) {
-            return this.selectedGroup.files.indexOf(this.selectedImageId);
-        }        
-        return 0;
-    }
-
-    @computed get length() {
-        if (this.selectedGroup) {
-            return this.selectedGroup.files.length;
+    @action async selectPoint(x: number, y: number) {
+        const url = `/api/v1/imagegroup/${this.selectedGroup.id}?imageId=${this.selectedImageId}`;
+        const response = await this.httpClient.fetch(url, {
+            method: "POST",            
+            headers: {
+                "Accept": "application/json, text/plain, */*",
+                "Content-Type": "application/json"
+              },
+            body: JSON.stringify({ x, y })
+        });
+        const groups = await response.json();
+        this.groups.splice(0, this.groups.length);
+        this.groups.push(...groups);
+        if (groups && groups.length > 0) {
+            await this.selectGroup(groups[0].id);
         }
-        return 0;
-    }    
-
-    @computed get imageUrl() {
-        if (this.selectedGroup) {
-            return `/data/${this.selectedGroup.id}/${this.selectedImageId}`;
-        }
-        return '';
     }
 }
