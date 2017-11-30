@@ -2,7 +2,7 @@ import * as React from "react";
 import { observer } from "mobx-react";
 import { AppModel } from "./AppModel";
 import { MouseEvent } from "react";
-import { action } from "mobx";
+import { action, observable } from "mobx";
 
 export interface CanvasModelOwner {
     imageUrl: string;
@@ -16,7 +16,8 @@ export class CanvasModel {
 
     private ctx: CanvasRenderingContext2D;
     private img: HTMLImageElement;
-
+    @observable factor: number;
+    
     @action setContext(context: CanvasRenderingContext2D) {
         this.ctx = context;
     }    
@@ -35,7 +36,7 @@ export class CanvasModel {
         y = y - 2;
         this.renderImage();
         this.renderPointer(x, y);
-        this.owner.selectPoint(x, y);
+        this.owner.selectPoint(x / this.factor, y / this.factor);
     }
 
     private renderPointer(x: number, y: number) {
@@ -51,9 +52,9 @@ export class CanvasModel {
     }
 
     private renderImage() {
-        const factor = this.owner.width / this.img.width;
+        this.factor = this.owner.width / this.img.width;
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-        this.ctx.drawImage(this.img, 0, 0, this.img.width * factor, this.img.height * factor);
+        this.ctx.drawImage(this.img, 0, 0, this.img.width * this.factor, this.img.height * this.factor);
     }
 }
 
@@ -66,9 +67,21 @@ export class Canvas extends React.Component<CanvasProps> {
     
     private el: HTMLCanvasElement;
 
+    constructor(props: CanvasProps) {
+        super(props);
+        this.click = this.click.bind(this);
+    }
+
     componentDidMount() {
         const context = this.el.getContext("2d");
         this.props.model.setContext(context);
+    }
+
+    click(e: React.MouseEvent<HTMLCanvasElement>) {
+        const clientRec = e.currentTarget.getBoundingClientRect();
+        const x = e.clientX - clientRec.left;
+        const y = e.clientY - clientRec.top;
+        this.props.model.selectPoint(x, y);
     }
 
     render() {
@@ -78,7 +91,7 @@ export class Canvas extends React.Component<CanvasProps> {
             ref={r => this.el = r} 
             width={1200} 
             height={800}
-            onClick={(e) => model.selectPoint(e.clientX - e.currentTarget.offsetLeft, e.clientY - e.currentTarget.offsetTop)}
+            onClick={this.click}
         />;
     }
 }

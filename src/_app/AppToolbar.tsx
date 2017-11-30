@@ -40,6 +40,7 @@ export class AppToolbar extends React.Component<ToolbarProps> {
                         </button>
                     )}
                     <label>{model.currentIndex + 1}/{model.length} - {model.selectedImageId}</label>
+                    <label>{model.canvasModel.factor}</label>
                 </div>;
     }
 }
