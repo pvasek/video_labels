@@ -70,7 +70,12 @@ export class AppModel {
     
     @action.bound async selectImage(id: string) {
         this.selectedImageId = id;
-        this.canvasModel.draw();
+        await this.canvasModel.draw();
+        const labels = this.selectedGroup.labels;
+        if (labels && labels[id]) {
+            const label = labels[id];            
+            this.canvasModel.renderOriginalPoint(label.x, label.y)
+        }
     }
 
     @action.bound selectNext() {
@@ -101,6 +106,11 @@ export class AppModel {
         this.canvasModel.draw();
     }
 
+    @action async selectNoBall() {
+        console.log("no ball");
+        return this.selectPoint(-1000, -1000);
+    }
+
     @action async selectPoint(x: number, y: number) {
         const url = `/api/v1/imagegroup/${this.selectedGroup.id}?imageId=${this.selectedImageId}`;
         const response = await this.httpClient.fetch(url, {
@@ -111,11 +121,6 @@ export class AppModel {
               },
             body: JSON.stringify({ x, y })
         });
-        const groups = await response.json();
-        this.groups.splice(0, this.groups.length);
-        this.groups.push(...groups);
-        if (groups && groups.length > 0) {
-            await this.selectGroup(groups[0].id);
-        }
+        this.selectedGroup.labels[this.selectedImageId] = {x, y};
     }
 }

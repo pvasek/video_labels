@@ -79,7 +79,7 @@ namespace VideoLabels.Services
             {
                 groupLabels[pair.Key] = pair.Value;
             }
-            var file = Path.Combine(_rootDataPath, group.Id, "labels.csv");            
+            var file = Path.Combine(_rootDataPath, group.Id, "labels.json");            
             var content = JsonConvert.SerializeObject(groupLabels);
             await File.WriteAllTextAsync(file, content);
         }

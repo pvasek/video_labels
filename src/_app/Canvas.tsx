@@ -22,13 +22,16 @@ export class CanvasModel {
         this.ctx = context;
     }    
 
-    @action draw() {
-        const img = new Image();
-        img.src = this.owner.imageUrl;
-        img.onload = () => {
-            this.renderImage();
-        }
-        this.img = img;
+    @action draw(): Promise<void> {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.src = this.owner.imageUrl;
+            img.onload = () => {
+                this.renderImage();
+                resolve();
+            }
+            this.img = img;
+        });
     }
 
     @action selectPoint(x: number, y: number) {
@@ -39,7 +42,14 @@ export class CanvasModel {
         this.owner.selectPoint(x / this.factor, y / this.factor);
     }
 
-    private renderPointer(x: number, y: number) {
+    @action renderOriginalPoint(x: number, y: number) {
+        console.log("renderOriginalPoint: ", x, y);
+        if (this.ctx) {
+            this.renderPointer(x * this.factor, y * this.factor);
+        }
+    }
+
+    private renderPointer(x: number, y: number) {        
         this.ctx.beginPath();
         this.ctx.strokeStyle = "#ffd50066"
         this.ctx.lineWidth = 2;

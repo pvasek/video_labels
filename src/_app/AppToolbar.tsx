@@ -30,6 +30,8 @@ export class AppToolbar extends React.Component<ToolbarProps> {
                         &gt;
                     </button>
                     <span className="seperator"/>
+                    <button className="btn btn-primary" onClick={e => model.selectNoBall()}>No ball</button>
+                    <span className="seperator"/>
                     {[300, 400, 600, 800, 1000].map(i => 
                         <button 
                             key={i}
