@@ -9,16 +9,17 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
-using VideoLabels.Services;
+using Microsoft.EntityFrameworkCore;
+using ImageAnnotator.WebUI.Services;
 
-namespace VideoLabels
+namespace ImageAnnotator.WebUI
 {
     public class Startup
     {
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            RootPath = "/Users/pvasek/develop/personal/video_labels/data";
+            RootPath = "/Users/pvasek/develop/personal/ImageAnnotator/data";
         }
 
         public IConfiguration Configuration { get; }
@@ -28,11 +29,12 @@ namespace VideoLabels
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
-            services.AddSingleton(DataService.CreateFromFolder(RootPath));
+            services.AddDbContext<DbService>(options => 
+                options.UseSqlite("Data Source=labels.db"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceScopeFactory serviceScopeFactory)
         {
             if (env.IsDevelopment())
             {
@@ -43,6 +45,12 @@ namespace VideoLabels
                 app.UseExceptionHandler("/Home/Error");
             }
             
+            using (var scope = serviceScopeFactory.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetService<DbService>();
+                db.Database.EnsureCreated();
+            }
+
             app.UseStaticFiles(new StaticFileOptions()
             {
                 FileProvider = new PhysicalFileProvider(RootPath),

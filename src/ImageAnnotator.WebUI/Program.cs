@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace VideoLabels
+namespace ImageAnnotator.WebUI
 {
     public class Program
     {

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace VideoLabels.Entities
+namespace ImageAnnotator.WebUI.Entities
 {
     public class ImageGroup 
     {

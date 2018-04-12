@@ -3,10 +3,10 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
-using VideoLabels.Entities;
+using ImageAnnotator.WebUI.Entities;
 using Newtonsoft.Json;
 
-namespace VideoLabels.Services
+namespace ImageAnnotator.WebUI.Services
 {
     public class DataService 
     {

@@ -1,4 +1,4 @@
-namespace VideoLabels.Entities
+namespace ImageAnnotator.WebUI.Entities
 {
     public class DataLabels 
     {
