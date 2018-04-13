@@ -238,3 +238,4 @@ node_modules
 /data
 .vscode
 *.db
+temp/

@@ -5,6 +5,7 @@
         "noImplicitAny": false,
         "jsx": "react",
         "sourceMap": false,
+        "outDir": "./temp",
         "experimentalDecorators": true,
         "lib": ["es2015", "dom"]
     }
