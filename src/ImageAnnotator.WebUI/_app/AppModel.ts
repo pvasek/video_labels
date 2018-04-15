@@ -51,13 +51,13 @@ export class AppModel {
     }
 
     @action async load() {
-        const response = await this.httpClient.fetch("/api/v1/imagegroup");
-        const groups = await response.json();
-        this.groups.splice(0, this.groups.length);
-        this.groups.push(...groups);
-        if (groups && groups.length > 0) {
-            await this.selectGroup(groups[0].id);
-        }
+        // const response = await this.httpClient.fetch("/api/v1/imagegroup");
+        // const groups = await response.json();
+        // this.groups.splice(0, this.groups.length);
+        // this.groups.push(...groups);
+        // if (groups && groups.length > 0) {
+        //     await this.selectGroup(groups[0].id);
+        // }
     } 
 
     @action async selectGroup(id: string): Promise<void> {

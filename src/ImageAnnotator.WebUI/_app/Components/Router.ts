@@ -1,72 +1,88 @@
-import { observable } from "mobx";
+import { observable, action } from "mobx";
 import { createBrowserHistory, History } from "history";
-
-export class Route<TParams> {
-    constructor(
-        public parent: Route<any> | null, 
-        public path: string | ((params: TParams) => string), 
-        public params: TParams) {
-    }
-
-    parts(): string[] {
-        const path = typeof this.path === "string" 
-            ? this.path
-            : "*";
-
-        return [
-            ...this.parent.parts(),
-            path
-        ];
-    }
-}
-
-export function pathsMatch(paths: string[], routePaths: string[]) {
-    if (paths.length !== routePaths.length) {
-        return false;
-    }
-
-    for (let i = 0; i < paths.length; i++) {
-        const routePath = routePaths[i];
-        const path = paths[i];
-
-        if (routePath === "*") {
-            continue;
-        }
-
-        if (path !== routePath) {
-            return false;
-        }
-    }
-    
-    return true;
-}
-
+import { Route } from "./Route";
+import { urlMatchRoute } from "./routeUtils";
 export class Router {
 
     constructor(private history: History) {
         this.history.listen(loc => {
-            const paths = loc.pathname.split("/");
+            this.navigateToUrl(loc.pathname);
+        });        
+    }
+
+    @action startRouter() {
+        console.log("Router.startRouter url:", this.history.location.pathname);
+        this.navigateToUrl(this.history.location.pathname);
+    }
+
+    @action navigateToRoute(route: Route<any>) {        
+        this.setCurrentRoute(route);
+        this.history.push(route.url);
+    }
+
+    @action navigateToUrl(url: string) {
+        const urlParts = url === ""
+            ? []
+            : url.split("/");
+
+        let currentRoute: Route<any> = null;
+        
+        this.routes.forEach(i => {
+            i.isActive = false;
+            i.isCurrent = false;
+            if (urlMatchRoute(urlParts, i.parts())) {
+                currentRoute = i;
+            }
         });
+
+        if (currentRoute) {
+            this.setCurrentRoute(currentRoute);
+        }        
+    }
+
+    private setCurrentRoute(route: Route<any>) {
+        console.log("Router.setCurrentRoute route: ", route.path.toString());
+        route.isCurrent = true;
+        let r = route;
+        while (r) {
+            r.isActive = true;
+            r = r.parent;
+        }
     }
 
     @observable currentRoute: Route<any>;
 
     private routes: Route<any>[] = [];
 
-    route<TParams>(parent: Route<any> | null, 
-        path: string, 
-        params: TParams): Route<TParams> {
-        const route = new Route(parent, path, params);
+    route<TParams>(parent: Route<any> | null,         
+        params: TParams,
+        path: string | ((params: TParams) => string)): Route<TParams> {
+        const that = this;
+        const navigatorFactory = {                
+            createNavigator(url: string) {
+                return {
+                    url: url,
+                    navigate() {
+                        that.navigateToUrl(url);
+                        that.history.push(url);
+                    }
+                }
+            }
+        };
+
+        const route = new Route(
+            parent,
+            params,
+            path,
+            navigatorFactory);
         this.routes.push(route);
         return route;
-    }
+    }    
 }
 
 export class AppRouter extends Router {
-
-    root = this.route(null, "", {});
-
-    projects = this.route(this.root, "projects", {});
-
-    projectDetail = this.route(this.projects, "", {id: "" });
+    home = this.route(null, {}, "");
+    app = this.route(this.home, {}, "app");
+    projects = this.route(this.app, {}, "projects");
+    projectDetail = this.route(this.projects, {id: "" }, "");
 }

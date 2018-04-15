@@ -3,13 +3,18 @@ import * as ReactDOM from "react-dom";
 import { AppModel } from "./AppModel";
 import { App } from "./App";
 import { HttpClient } from "aurelia-fetch-client";
+import { AppRouter } from "./Components/Router";
+import { createBrowserHistory } from "history";
 
 const httpClient = new HttpClient();
 const model = new AppModel(httpClient);
+const router = new AppRouter(createBrowserHistory());
 model.load();
 
 const el = document.getElementById("app");
-ReactDOM.render(<App model={model}/>, el);
+ReactDOM.render(<App model={model} router={router}/>, el);
+
+router.startRouter();
 
 const keys = {
     rightArrow: 39,
